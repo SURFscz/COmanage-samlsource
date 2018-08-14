@@ -70,7 +70,7 @@ class SamlSourceCoPetitionsController extends CoPetitionsController {
         }
 
         // Dump the token into a viewvar in case needed
-        $this->set('vv_petition_token', $token);
+        $this->set('vv_petition_token', $passedToken);
       } else {
         $this->Flash->set(_txt('er.token'), array('key' => 'error'));
         $this->redirect("/");
