@@ -50,13 +50,21 @@ class SamlSourceCoPetitionsController extends CoPetitionsController {
     // This is loosely based on parent::beforeFilter().
     $noAuth = false;
 
+    $steps = null;
+
+    if($this->enrollmentFlowID() > -1) {
+      $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($this->enrollmentFlowID());
+    }
+
     // For self signup, we simply require a token (and for the token to match).
     $petitionerToken = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $this->parseCoPetitionId()));
     $enrolleeToken = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $this->parseCoPetitionId()));
     $passedToken = $this->parseToken();
 
+    $enrolleePhase = !empty($steps) && isset($steps[$this->action]) && $steps[$this->action]['role'] == EnrollmentRole::Enrollee;
     if(!(empty($petitionerToken) && empty($enrolleeToken)) && !empty($passedToken)) {
-      if($enrolleeToken == $passedToken || $petitionerToken == $passedToken) {
+      if(   ($enrolleePhase && $enrolleeToken == $passedToken) 
+         || (!$enrolleePhase && $petitionerToken == $passedToken)) {
         // If we were passed a reauth flag, we require authentication even though
         // the token matched. This enables account linking.
         if(!isset($this->request->params['named']['reauth'])
@@ -141,14 +149,18 @@ class SamlSourceCoPetitionsController extends CoPetitionsController {
 
     $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
 
-    $newOrgId = $this->OrgIdentitySource->createOrgIdentity($oiscfg['OrgIdentitySource']['id'],
+    try {
+      $newOrgId = $this->OrgIdentitySource->createOrgIdentity($oiscfg['OrgIdentitySource']['id'],
                                                             $sorid,
                                                             $actorCoPersonId,
                                                             $this->cur_co['Co']['id'],
                                                             $coPersonId,
                                                             false,
                                                             $id);
-
+    }
+    catch(OverflowException $e) {
+      // silently ignore the error: source id is already known
+    }
     // The step is done
     $this->redirect($onFinish);
   }
@@ -241,14 +253,18 @@ class SamlSourceCoPetitionsController extends CoPetitionsController {
     // selectEnrollee hasn't run yet so we can't pull the target CO Person from the
     // petition, but for OISAuthenticate, it's the current user (ie: $actorCoPersonId)
     // that we always want to link to.
-
-    $newOrgId = $this->OrgIdentitySource->createOrgIdentity($oiscfg['OrgIdentitySource']['id'],
+    try {
+      $newOrgId = $this->OrgIdentitySource->createOrgIdentity($oiscfg['OrgIdentitySource']['id'],
                                                             $sorid,
                                                             $actorCoPersonId,
                                                             $this->cur_co['Co']['id'],
                                                             $actorCoPersonId,
                                                             false,
                                                             $id);
+    }
+    catch(OverflowException $e) {
+      // silently ignore the error: source id is already known
+    }
     // The step is done
     $this->redirect($onFinish);
   }
