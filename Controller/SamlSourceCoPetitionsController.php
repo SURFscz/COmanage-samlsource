@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Env Source Co Petitions Controller
+ * COmanage Registry Saml Source Co Petitions Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -258,13 +258,14 @@ class SamlSourceCoPetitionsController extends CoPetitionsController {
                                                             $sorid,
                                                             $actorCoPersonId,
                                                             $this->cur_co['Co']['id'],
-                                                            $actorCoPersonId,
+                                                            null,
                                                             false,
                                                             $id);
     }
     catch(OverflowException $e) {
       // silently ignore the error: source id is already known
     }
+
     // The step is done
     $this->redirect($onFinish);
   }
