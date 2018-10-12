@@ -50,21 +50,13 @@ class SamlSourceCoPetitionsController extends CoPetitionsController {
     // This is loosely based on parent::beforeFilter().
     $noAuth = false;
 
-    $steps = null;
-
-    if($this->enrollmentFlowID() > -1) {
-      $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($this->enrollmentFlowID());
-    }
-
     // For self signup, we simply require a token (and for the token to match).
     $petitionerToken = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $this->parseCoPetitionId()));
     $enrolleeToken = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $this->parseCoPetitionId()));
     $passedToken = $this->parseToken();
 
-    $enrolleePhase = !empty($steps) && isset($steps[$this->action]) && $steps[$this->action]['role'] == EnrollmentRole::Enrollee;
     if(!(empty($petitionerToken) && empty($enrolleeToken)) && !empty($passedToken)) {
-      if(   ($enrolleePhase && $enrolleeToken == $passedToken) 
-         || (!$enrolleePhase && $petitionerToken == $passedToken)) {
+      if(($enrolleeToken == $passedToken) || ($petitionerToken == $passedToken)) {
         // If we were passed a reauth flag, we require authentication even though
         // the token matched. This enables account linking.
         if(!isset($this->request->params['named']['reauth'])

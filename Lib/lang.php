@@ -1,13 +1,8 @@
 <?php
 /**
- * COmanage Registry Env Source Plugin Language File
+ * COmanage Registry SamlSource Plugin Language File
  *
- * Portions licensed to the University Corporation for Advanced Internet
- * Development, Inc. ("UCAID") under one or more contributor license agreements.
- * See the NOTICE file distributed with this work for additional information
- * regarding copyright ownership.
- *
- * UCAID licenses this file to you under the Apache License, Version 2.0
+ * Author licenses this file to you under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with the
  * License. You may obtain a copy of the License at:
  *
@@ -19,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @link          http://www.internet2.edu/comanage COmanage Project
+ * @link          http://www.surfnet.nl
  * @package       registry-plugin
- * @since         COmanage Registry v3.1.0
+ * @since         2018-03-01
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
