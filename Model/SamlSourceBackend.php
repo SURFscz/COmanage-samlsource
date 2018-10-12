@@ -854,6 +854,10 @@ class SamlSourceBackend extends OrgIdentitySourceBackend {
     }
     else if(!isset($orgdata['Address'][0]['type'])) {
       $orgdata['Address'][0]['type'] =  ContactEnum::Office;
+      // make sure we have a value for the street field, which cannot be left empty...
+      if(empty($orgdata['Address'][0]['street'])) {
+        $orgdata['Address'][0]['street'] = _txt('pl.samlsource.street.unknown');
+      }
     }
 
     $this->devLog('returning orgidentity '.json_encode($orgdata,JSON_PRETTY_PRINT));

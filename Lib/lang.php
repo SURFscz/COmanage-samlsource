@@ -41,5 +41,6 @@ $cm_saml_source_texts['en_US'] = array(
   'pl.samlsource.prefix.desc'    => 'Defines the prefix used for SAML variables set in the environment',
   'pl.samlsource.identifier'     => 'Identifier',
   'pl.samlsource.identifier.desc'=> 'Defines the identifier configured as REMOTE_USER for login',
-  'pl.samlsource.name.unknown'   => 'Nomen Nescio'
+  'pl.samlsource.name.unknown'   => 'Nomen Nescio',
+  'pl.samlsource.street.unknown' => 'Unknown'
 );
