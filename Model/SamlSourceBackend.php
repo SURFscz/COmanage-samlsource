@@ -802,39 +802,24 @@ class SamlSourceBackend extends OrgIdentitySourceBackend {
           break;
 
         default:
-          break;
-        }
 
-        // If this specific attribute is used as login identifier (whatever its content),
-        // search for the relevant identifier and set its login value
-        // We do this here, because the name of the SORID attribute can be different than
-        // that of any of the case statements above.
-        if($key == $sorid_attr && !$identifier_added) {
-          $identifier_found = false;
-
-          for($i=0;$i<sizeof($orgdata['Identifier']);$i++) {
-            // identifier is already known, but it should also be registered as login identifier
-            if($orgdata['Identifier'][$i]['identifier'] == $value) {
-              $orgdata['Identifier'][$i]['login'] = true;
-              $identifier_found=true;
-            }
-          }
-
-          if(!$identifier_found) {
-            // add a new identifier of type UID (a random pick, because it is not one
-            // of the known types UID, ePPN, ePTID)
-            // TODO: add an extended type for this attribute type and put the identifier
-            // under that type
+          // If this specific attribute is used as login identifier, create a new identifier
+          // If the SORID is an existing SAML identifier type, we will have set the login
+          // attribute on that identifier somewhere above already. This case statement
+          // is only for the situation that the SORID is not one of our known SAML attributes.
+          if($key == $sorid_attr) {
+            // Add a new identifier of type UID
+            // We would want to create a new identifier type, but that is not supported through
+            // Extended types for OrgIdentities
             $orgdata['Identifier'][] = array(
               'identifier' => $value,
               'login'      => true,
               'status'     => StatusEnum::Active,
-              'type'       => IdentifierEnum::UID
+              'type'       => IdentifierEnum::SORID
             );
           }
+          break;
         }
-
-
       }
     }
 

@@ -73,13 +73,13 @@ class SamlSource extends AppModel {
     $attributes = array(
       'saml_var_prefix' => array(
         'label'    => _txt('pl.samlsource.prefix'),
-        'default'  => '',
+        'default'  => 'MELLON_',
         'required' => true,
         'desc'     => _txt('pl.samlsource.prefix.desc')
       ),
       'saml_sorid' => array(
         'label'    => _txt('pl.samlsource.identifier'),
-        'default'  => '',
+        'default'  => 'cmuid',
         'required' => true,
         'desc'     => _txt('pl.samlsource.identifier.desc')
       )
