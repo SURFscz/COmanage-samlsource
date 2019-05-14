@@ -642,7 +642,7 @@ class SamlSourceBackend extends OrgIdentitySourceBackend {
           }
           if(!in_array($value, $names)) {
             $orgdata['Name'][]=$this->splitName($value);
-          }https://comanage.scz-vm.net/registry/co_invites/reply/df860857d369c2a134bc0a1718dea3509109acfb
+          }
           break;
 
         case 'employeetype':
@@ -789,17 +789,17 @@ class SamlSourceBackend extends OrgIdentitySourceBackend {
           }
           break;
 
-        case 'schacpersonaluniquecode':
-        case 'urn:mace:terena.org:attribute-def:schacpersonaluniquecode':
-        case 'urn:oid:1.3.6.1.4.1.25178.1.2.14':
+//        case 'schacpersonaluniquecode':
+//        case 'urn:mace:terena.org:attribute-def:schacpersonaluniquecode':
+//        case 'urn:oid:1.3.6.1.4.1.25178.1.2.14':
           // TODO: create identifier for this
-          break;
+//          break;
 
-        case 'schacpersonaluniqueid':
-        case 'urn:mace:terena.org:attribute-def:schacpersonaluniqueid':
-        case 'urn:oid:1.3.6.1.4.1.25178.1.2.15':
+//        case 'schacpersonaluniqueid':
+//        case 'urn:mace:terena.org:attribute-def:schacpersonaluniqueid':
+//        case 'urn:oid:1.3.6.1.4.1.25178.1.2.15':
           // TODO: create identifier for this
-          break;
+//          break;
 
         default:
 
