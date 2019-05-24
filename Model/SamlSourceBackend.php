@@ -139,9 +139,13 @@ class SamlSourceBackend extends OrgIdentitySourceBackend {
     // Pete H. Johnson, MD        --> '', 'Pete', 'H.', 'Johnson', 'MD'
     // Juan Bolivar di Perez      --> '', 'Juan', '', 'Bolivar di Perez',''
     // Pieter van der Veer        --> '', 'Pieter', '', 'van der Veer', ''
+    // Henri d'Artisan, Bsc       --> '', 'Henri', '', 'd\'Artisan', 'Bsc'
+    // Th. DeKrom                 --> '', 'Th.', '', 'DeKrom', ''
     //
     // Expected error cases:
     // John Frank Peterson        --> '','John','','Frank Peterson',''
+    // Ae. Van Vogt               --> 'Ae.', 'Van', '', 'Vogt', ''
+    // Dr. Jones                  --> 'Dr.', 'Jones', '', '', ''
 
     $index=0;
     $namefound=false;
@@ -171,10 +175,13 @@ class SamlSourceBackend extends OrgIdentitySourceBackend {
         else {
           $namefound = true;
 
+          // If we found a comma, this is likely a familyName and not a givenName,
+          // but if givenName is still empty, we need to fill that first
+          // We have a quick check at the end for empty family names and honorifics.
           if(!mb_strlen($name['given'])) {
             $name['given'] = $part;
           }
-          else if($hasdot && !$lastnamefound) {
+          else if($hasdot && !$lastnamefound && !$hascomma) {
             $name['middle'] = (mb_strlen($name['middle'])>0 ? ' ': '') . $part;
           }
           else if(($hasdot || $forcesuffix) && $lastnamefound) {
@@ -189,18 +196,13 @@ class SamlSourceBackend extends OrgIdentitySourceBackend {
       }
     }
 
-    // Case: 'P. Jones'
-    if(!mb_strlen($name['given']) && mb_strlen($name['honorific'])) {
+    // Case: 'Ae. Jones'
+    if(!mb_strlen($name['family']) && mb_strlen($name['honorific'])) {
+      $name['family'] = $name['given'];
       $name['given'] = $name['honorific'];
       $name['honorific'] = '';
     }
 
-    // Case: 'Smith' or 'John'
-    // We need at least a given name for the data model
-    if(!mb_strlen($name['given']) && mb_strlen($name['family'])) {
-      $name['given'] = $name['family'];
-      $name['family'] = '';
-    }
     $this->devLog('Returning name '.json_encode($name));
     return $name;
   }

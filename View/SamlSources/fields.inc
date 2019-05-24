@@ -93,7 +93,12 @@
               $args['required'] = true;
             }
 
-            print $this->Form->input($field, $args);
+            if(isset($attr['modifiable']) && !$attr['modifiable']) {
+              print filter_var($args['default'],FILTER_SANITIZE_SPECIAL_CHARS);
+            }
+            else {
+              print $this->Form->input($field, $args);
+            }
           ?>
         </td>
       </tr>

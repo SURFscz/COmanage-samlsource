@@ -69,19 +69,27 @@ class SamlSource extends AppModel {
     // The various _name fields are default values that can be overridden.
     // Attribute types are forced to Official since they come from an "official" source.
 
-    // The key is the column name in cm_env_sources
+    // The key is the column name in cm_saml_sources
+
+    // If we have a configuration file with values for these fields, set
+    // the default value and disable the attributes.
+    $varprefix = $this->readFileConfiguration("var_prefix");
+    $sorid = $this->readFileConfiguration("sorid");
+
     $attributes = array(
       'saml_var_prefix' => array(
         'label'    => _txt('pl.samlsource.prefix'),
-        'default'  => 'MELLON_',
+        'default'  => $varprefix === FALSE ? 'MELLON_' : $varprefix,
         'required' => true,
-        'desc'     => _txt('pl.samlsource.prefix.desc')
+        'desc'     => _txt('pl.samlsource.prefix.desc'),
+        'modifiable' => $varprefix == null
       ),
       'saml_sorid' => array(
         'label'    => _txt('pl.samlsource.identifier'),
-        'default'  => 'cmuid',
+        'default'  => $sorid === FALSE ? 'cmuid' : $sorid,
         'required' => true,
-        'desc'     => _txt('pl.samlsource.identifier.desc')
+        'desc'     => _txt('pl.samlsource.identifier.desc'),
+        'modifiable' => $sorid == null
       )
     );
 
@@ -98,4 +106,45 @@ class SamlSource extends AppModel {
   public function cmPluginMenus() {
     return array();
   }
+
+  /**
+   * Set model values based on configuration, if such is present
+   */
+  public function beforeValidate($options=FALSE) {
+    $varprefix = $this->readFileConfiguration("var_prefix");
+    $sorid = $this->readFileConfiguration("sorid");
+
+    if($varprefix !== FALSE) {
+      $this->data[$this->alias]["saml_var_prefix"] = $varprefix;
+    }
+    if($sorid !== FALSE) {
+      $this->data[$this->alias]["saml_sorid"] = $sorid;
+    }
+  }
+
+  /**
+   * Read configuration file variables, if present
+   */
+  private function readFileConfiguration($key, $def=FALSE) {
+    if(!isset($this->_configread)) {
+      $this->_configread = TRUE;
+      if(!Configure::read('samlsource')) {
+        try {
+          Configure::load('samlsource');
+        }
+        catch(ConfigureException $e) {
+          // no configuration file found
+        }
+      }
+    }
+    if(Configure::read('samlsource')) {
+      $value = Configure::read('samlsource.'.$key);
+      if($value === FALSE) {
+        return $def;
+      }
+      return $value;
+    }
+    return $def;
+  }
+
 }
