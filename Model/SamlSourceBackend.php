@@ -26,6 +26,7 @@
  */
 
 App::uses("OrgIdentitySourceBackend", "Model");
+App::uses("OrgIdentitySource", "Model");
 
 class SamlSourceBackend extends OrgIdentitySourceBackend {
   public $name = "SamlSourceBackend";
@@ -303,7 +304,6 @@ class SamlSourceBackend extends OrgIdentitySourceBackend {
       if(!is_array($values)) $values=array($values);
       foreach($values as $value) {
         $this->devLog('determining attribute '.$key. ' = ' .$value);
-        $identifier_added = false;
 
         switch(strtolower($key)) {
         case 'email':
@@ -357,7 +357,6 @@ class SamlSourceBackend extends OrgIdentitySourceBackend {
               'status'     => StatusEnum::Active,
               'type'       => IdentifierEnum::UID
             );
-            $identifier_added = true;
           }
           break;
 
@@ -714,7 +713,6 @@ class SamlSourceBackend extends OrgIdentitySourceBackend {
               'status'     => StatusEnum::Active,
               'type'       => IdentifierEnum::ePPN
             );
-            $identifier_added = true;
           }
           break;
 
@@ -734,7 +732,6 @@ class SamlSourceBackend extends OrgIdentitySourceBackend {
               'status'     => StatusEnum::Active,
               'type'       => IdentifierEnum::ePTID
             );
-            $identifier_added = true;
           }
           break;
 
@@ -824,6 +821,32 @@ class SamlSourceBackend extends OrgIdentitySourceBackend {
         }
       }
     }
+
+    if(isset($result[$sorid_attr])) {
+      $sorid = $result[$sorid_attr];
+      if(is_array($sorid)) $sorid = $sorid[0];
+
+      // Create a persistent, non-mutable identifier based on the login identifier and the CO id
+      // We link this to SAMLSource, so it cannot be changed by anyone. It can then be copied to
+      // COPerson during enrollment
+      $args=array();
+      $args["contains"]=false;
+      $args['conditions']['OrgIdentitySource.id'] = $this->pluginCfg['org_identity_source_id'];
+      $OrgIdentitySource = ClassRegistry::init("OrgIdentitySource");
+      $ois = $OrgIdentitySource->find('first',$args);
+      if(!empty($ois))
+      {
+        $prehash = $ois['OrgIdentitySource']['co_id'] .':'.$sorid;
+        $this->devLog("creating ePUID hash based on '$prehash'");
+        $value = hash("sha256",$prehash);
+        $orgdata['Identifier'][] = array(
+              'identifier' => $value,
+              'login'      => false,
+              'status'     => StatusEnum::Active,
+              'type'       => IdentifierEnum::Reference
+        );
+      } else { $this->devLog("not creating ePUID due to missing source id"); }
+    } else { $this->devLog("not creating ePUID due to missing sorid"); }
 
     $orgdata = $this->normalizeNames($orgdata, $result[$sorid_attr][0]);
     // we make the first name we have 'primary' (because a primary name
